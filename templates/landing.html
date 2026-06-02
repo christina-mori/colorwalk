@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ColorWalk Studio — Turn photos into art</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark: #17130f;
+      --warm: #a08c78;
+      --cream: #f7f3ee;
+      --text: #2a2218;
+      --muted: #9a8e84;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(23,19,15,0.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .nav-brand {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .lang-btn.active {
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+    }
+
+    .nav-cta {
+      padding: 10px 24px;
+      background: var(--warm);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: #b89e8a; transform: scale(1.03); }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      background: var(--dark);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-left {
+      padding: 140px 64px 80px 72px;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border: 1px solid rgba(160,140,120,0.5);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--warm);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-title {
+      font-size: clamp(38px, 5vw, 64px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero-title em {
+      font-style: normal;
+      color: var(--warm);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 44px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 34px;
+      background: var(--warm);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 8px 32px rgba(160,140,120,0.35);
+    }
+
+    .btn-hero:hover {
+      background: #b89e8a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(160,140,120,0.45);
+    }
+
+    .btn-hero .arrow {
+      font-size: 20px;
+      transition: transform 0.2s;
+    }
+    .btn-hero:hover .arrow { transform: translateX(4px); }
+
+    .hero-note {
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .hero-right {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 80px 48px 0 8px;
+    }
+
+    .hero-img {
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeUp 0.7s ease both;
+    }
+    .hero-img:nth-child(1) { animation-delay: 0.15s; }
+    .hero-img:nth-child(2) { animation-delay: 0.25s; transform: translateY(32px); }
+    .hero-img:nth-child(3) { animation-delay: 0.2s; }
+    .hero-img:nth-child(4) { animation-delay: 0.3s; transform: translateY(32px); }
+
+    .hero-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .hero-img:hover img { transform: scale(1.03); }
+
+    .hero-fade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--dark) 0%, transparent 30%);
+      pointer-events: none;
+    }
+
+    /* ── Section base ── */
+    section {
+      padding: 120px 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--warm);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 18px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 56px;
+    }
+
+    /* ── Feature: ColorWalk ── */
+    .feature-cw {
+      background: var(--dark);
+      color: #fff;
+    }
+
+    .feature-cw .section-title { color: #fff; }
+    .feature-cw .section-desc { color: rgba(255,255,255,0.5); }
+
+    .cw-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .cw-card {
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 9/16;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cw-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .cw-card:hover img { transform: scale(1.06); }
+
+    .cw-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .cw-card:hover .cw-card-overlay { opacity: 1; }
+
+    /* ── Feature: Dot Puzzle ── */
+    .feature-dp {
+      background: var(--cream);
+    }
+
+    .dp-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .dp-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .dp-card {
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+    }
+
+    .dp-card:nth-child(2) { margin-top: 28px; }
+    .dp-card:nth-child(4) { margin-top: 28px; }
+
+    .dp-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .dp-card:hover img { transform: scale(1.05); }
+
+    /* ── How it works ── */
+    .how {
+      background: #fff;
+    }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-top: 64px;
+    }
+
+    .how-step {
+      text-align: center;
+    }
+
+    .how-num {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--cream);
+      border: 2px solid #e8e0d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--warm);
+      margin: 0 auto 20px;
+    }
+
+    .how-step h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .how-step p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Final CTA ── */
+    .final-cta {
+      background: var(--dark);
+      text-align: center;
+      padding: 160px 48px;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(32px, 5vw, 60px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .final-cta h2 em {
+      font-style: normal;
+      color: var(--warm);
+    }
+
+    .final-cta p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 48px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-brand {
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .footer-note {
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ── Scroll-reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      nav > div { gap: 8px !important; }
+      .lang-btn { padding: 7px 10px; }
+      .nav-cta { padding: 10px 18px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 120px 32px 60px; }
+      .hero-right { display: none; }
+      .cw-gallery { grid-template-columns: repeat(2, 1fr); }
+      .dp-layout { grid-template-columns: 1fr; gap: 48px; }
+      .how-steps { grid-template-columns: 1fr; gap: 32px; }
+      .container { padding: 0 24px; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="/" class="nav-brand">✦ ColorWalk</a>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="lang-switch">
+        <button class="lang-btn active" id="landingLangEnBtn" type="button">EN</button>
+        <button class="lang-btn" id="landingLangZhBtn" type="button">中文</button>
+      </div>
+      <a href="/app" class="nav-cta" id="landingNavCta">Start Creating →</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-badge" id="landingHeroBadge">Free · No sign-up needed</div>
+      <h1 class="hero-title" id="landingHeroTitle">
+        Turn any photo<br />into <em>art</em>.
+      </h1>
+      <p class="hero-sub" id="landingHeroSub">
+        Upload a photo. Extract its colors. Generate a stunning color block composition or a playful dot puzzle — in seconds.
+      </p>
+      <div class="hero-actions">
+        <a href="/app" class="btn-hero" id="landingHeroCta">
+          Start Creating <span class="arrow">→</span>
+        </a>
+        <span class="hero-note" id="landingHeroNote">Free to use</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-grid">
+        <div class="hero-img"><img src="/static/gallery/cw1.jpg" alt="" /></div>
+        <div class="hero-img"><img src="/static/gallery/dp1.png" alt="" /></div>
+        <div class="hero-img"><img src="/static/gallery/cw3.jpg" alt="" /></div>
+        <div class="hero-img"><img src="/static/gallery/dp2.png" alt="" /></div>
+      </div>
+      <div class="hero-fade"></div>
+    </div>
+  </section>
+
+  <!-- ColorWalk Feature -->
+  <section class="feature-cw">
+    <div class="container">
+      <p class="section-label reveal" id="landingFeature1Label">Feature 01</p>
+      <h2 class="section-title reveal">ColorWalk</h2>
+      <p class="section-desc reveal" id="landingFeature1Desc">
+        Automatically extract the dominant color from your photo and pair it with the image itself. Add a caption and you have a ready-to-share travel card.
+      </p>
+      <div class="cw-gallery reveal">
+        <div class="cw-card">
+          <img src="/static/gallery/cw1.jpg" alt="Rome ColorWalk" />
+          <div class="cw-card-overlay"></div>
+        </div>
+        <div class="cw-card">
+          <img src="/static/gallery/cw2.jpg" alt="Borghese ColorWalk" />
+          <div class="cw-card-overlay"></div>
+        </div>
+        <div class="cw-card">
+          <img src="/static/gallery/cw3.jpg" alt="Florence ColorWalk" />
+          <div class="cw-card-overlay"></div>
+        </div>
+        <div class="cw-card">
+          <img src="/static/gallery/cw4.jpg" alt="Orangerie ColorWalk" />
+          <div class="cw-card-overlay"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dot Puzzle Feature -->
+  <section class="feature-dp">
+    <div class="container">
+      <div class="dp-layout">
+        <div class="dp-gallery reveal">
+          <div class="dp-card"><img src="/static/gallery/dp1.png" alt="Dot puzzle daily life" /></div>
+          <div class="dp-card"><img src="/static/gallery/dp2.png" alt="Dot puzzle lakeside circles" /></div>
+          <div class="dp-card"><img src="/static/gallery/dp3.png" alt="Dot puzzle cherry blossom hearts" /></div>
+          <div class="dp-card"><img src="/static/gallery/dp4.png" alt="Dot puzzle Tyrande's Summer" /></div>
+        </div>
+        <div class="reveal">
+          <p class="section-label" id="landingFeature2Label">Feature 02</p>
+          <h2 class="section-title">Dot Puzzle</h2>
+          <p class="section-desc" id="landingFeature2Desc">
+            Scatter shapes across your photo — circles, stars, teardrops, cat paws. Each dot punches out a piece of reality and rearranges it onto a color block beside your photo.
+          </p>
+          <a href="/app" class="btn-hero" id="landingFeature2Cta" style="display:inline-flex; text-decoration:none;">
+            Try it now <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how">
+    <div class="container">
+      <p class="section-label reveal" id="landingHowLabel" style="text-align:center">How it works</p>
+      <h2 class="section-title reveal" id="landingHowTitle" style="text-align:center; max-width:560px; margin:0 auto 8px">
+        Three steps. That's it.
+      </h2>
+      <div class="how-steps">
+        <div class="how-step reveal">
+          <div class="how-num">1</div>
+          <h3 id="landingHowStep1Title">Upload a photo</h3>
+          <p id="landingHowStep1Desc">Drop in any JPG or PNG up to 20 MB. Your photo stays on your device — nothing is stored on our servers.</p>
+        </div>
+        <div class="how-step reveal">
+          <div class="how-num">2</div>
+          <h3 id="landingHowStep2Title">Choose an effect</h3>
+          <p id="landingHowStep2Desc">Pick ColorWalk to extract dominant colors, or Dot Puzzle to scatter shapes across your image.</p>
+        </div>
+        <div class="how-step reveal">
+          <div class="how-num">3</div>
+          <h3 id="landingHowStep3Title">Download & share</h3>
+          <p id="landingHowStep3Desc">Tweak the settings to your taste, then download as PNG or JPG — ready for your feed, your journal, or anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta">
+    <h2 id="landingFinalTitle">Your photo.<br /><em>Your</em> story.</h2>
+    <p id="landingFinalDesc">No account. No watermark. Just you and your images.</p>
+    <a href="/app" class="btn-hero" id="landingFinalCta" style="font-size:18px; padding:18px 44px;">
+      Start Creating <span class="arrow">→</span>
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-brand">✦ ColorWalk Studio</span>
+    <span class="footer-note" id="landingFooterNote">Made with care · Free to use</span>
+  </footer>
+
+  <script>
+    const landingI18n = {
+      en: {
+        navCta: 'Start Creating →',
+        heroBadge: 'Free · No sign-up needed',
+        heroTitle: 'Turn any photo<br />into <em>art</em>.',
+        heroSub: 'Upload a photo. Extract its colors. Generate a stunning color block composition or a playful dot puzzle — in seconds.',
+        heroCta: 'Start Creating <span class="arrow">→</span>',
+        heroNote: 'Free to use',
+        feature1Label: 'Feature 01',
+        feature1Desc: 'Automatically extract the dominant color from your photo and pair it with the image itself. Add a caption and you have a ready-to-share travel card.',
+        feature2Label: 'Feature 02',
+        feature2Desc: 'Scatter shapes across your photo — circles, stars, teardrops, cat paws. Each dot punches out a piece of reality and rearranges it onto a color block beside your photo.',
+        feature2Cta: 'Try it now <span class="arrow">→</span>',
+        howLabel: 'How it works',
+        howTitle: 'Three steps. That\'s it.',
+        howStep1Title: 'Upload a photo',
+        howStep1Desc: 'Drop in any JPG or PNG up to 20 MB. Your photo stays on your device — nothing is stored on our servers.',
+        howStep2Title: 'Choose an effect',
+        howStep2Desc: 'Pick ColorWalk to extract dominant colors, or Dot Puzzle to scatter shapes across your image.',
+        howStep3Title: 'Download & share',
+        howStep3Desc: 'Tweak the settings to your taste, then download as PNG or JPG — ready for your feed, your journal, or anywhere.',
+        finalTitle: 'Your photo.<br /><em>Your</em> story.',
+        finalDesc: 'No account. No watermark. Just you and your images.',
+        finalCta: 'Start Creating <span class="arrow">→</span>',
+        footerNote: 'Made with care · Free to use',
+      },
+      zh: {
+        navCta: '开始创作 →',
+        heroBadge: '免费使用 · 无需注册',
+        heroTitle: '把任意照片<br />变成 <em>作品</em>。',
+        heroSub: '上传一张照片，提取其中的颜色，在几秒内生成好看的色块拼图，或一张有趣的波点拼图。',
+        heroCta: '开始创作 <span class="arrow">→</span>',
+        heroNote: '免费可用',
+        feature1Label: '功能 01',
+        feature1Desc: '自动提取照片主色，并与原图组合成一张完整画面。加上一句标题，就能得到可直接分享的旅行卡片。',
+        feature2Label: '功能 02',
+        feature2Desc: '把圆点、星星、水滴等形状撒进照片里，再把图像碎片搬到旁边的色块上，拼成一张轻巧又特别的画面。',
+        feature2Cta: '立即体验 →',
+        howLabel: '使用方式',
+        howTitle: '三步，就够了。',
+        howStep1Title: '上传照片',
+        howStep1Desc: '支持 JPG / PNG，最大 20 MB。照片只在当前流程中处理，不会长期存储。',
+        howStep2Title: '选择效果',
+        howStep2Desc: '你可以选择 ColorWalk 提取主色，也可以选择 Dot Puzzle 做出波点拼图效果。',
+        howStep3Title: '下载分享',
+        howStep3Desc: '按你的喜好调整参数，然后下载 PNG 或 JPG，用在社交媒体、手账或任何想分享的地方。',
+        finalTitle: '你的照片。<br /><em>你的</em>表达。',
+        finalDesc: '不用注册，没有水印，只有你和你的图像。',
+        finalCta: '开始创作 <span class="arrow">→</span>',
+        footerNote: '认真做的 · 免费使用',
+      }
+    };
+
+    function applyLandingLanguage(lang) {
+      const currentLang = lang === 'zh' ? 'zh' : 'en';
+      const dict = landingI18n[currentLang];
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+      document.getElementById('landingLangEnBtn').classList.toggle('active', currentLang === 'en');
+      document.getElementById('landingLangZhBtn').classList.toggle('active', currentLang === 'zh');
+      document.getElementById('landingNavCta').innerHTML = dict.navCta;
+      document.getElementById('landingHeroBadge').textContent = dict.heroBadge;
+      document.getElementById('landingHeroTitle').innerHTML = dict.heroTitle;
+      document.getElementById('landingHeroSub').textContent = dict.heroSub;
+      document.getElementById('landingHeroCta').innerHTML = dict.heroCta;
+      document.getElementById('landingHeroNote').textContent = dict.heroNote;
+      document.getElementById('landingFeature1Label').textContent = dict.feature1Label;
+      document.getElementById('landingFeature1Desc').textContent = dict.feature1Desc;
+      document.getElementById('landingFeature2Label').textContent = dict.feature2Label;
+      document.getElementById('landingFeature2Desc').textContent = dict.feature2Desc;
+      document.getElementById('landingFeature2Cta').innerHTML = dict.feature2Cta;
+      document.getElementById('landingHowLabel').textContent = dict.howLabel;
+      document.getElementById('landingHowTitle').textContent = dict.howTitle;
+      document.getElementById('landingHowStep1Title').textContent = dict.howStep1Title;
+      document.getElementById('landingHowStep1Desc').textContent = dict.howStep1Desc;
+      document.getElementById('landingHowStep2Title').textContent = dict.howStep2Title;
+      document.getElementById('landingHowStep2Desc').textContent = dict.howStep2Desc;
+      document.getElementById('landingHowStep3Title').textContent = dict.howStep3Title;
+      document.getElementById('landingHowStep3Desc').textContent = dict.howStep3Desc;
+      document.getElementById('landingFinalTitle').innerHTML = dict.finalTitle;
+      document.getElementById('landingFinalDesc').textContent = dict.finalDesc;
+      document.getElementById('landingFinalCta').innerHTML = dict.finalCta;
+      document.getElementById('landingFooterNote').textContent = dict.footerNote;
+      try { localStorage.setItem('cw_lang', currentLang); } catch {}
+    }
+
+    document.getElementById('landingLangEnBtn').addEventListener('click', () => applyLandingLanguage('en'));
+    document.getElementById('landingLangZhBtn').addEventListener('click', () => applyLandingLanguage('zh'));
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    let savedLang = 'en';
+    try { savedLang = localStorage.getItem('cw_lang') || 'en'; } catch {}
+    applyLandingLanguage(savedLang);
+  </script>
+</body>
+</html>

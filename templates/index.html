@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ColorWalk Studio</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand">✦ ColorWalk</div>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="langEnBtn" type="button">EN</button>
+      <button class="lang-btn" id="langZhBtn" type="button">中文</button>
+    </div>
+    <nav class="topbar-steps" id="topbarSteps" style="display:none">
+      <span class="tstep done" id="ts1">① Upload</span>
+      <span class="tstep-arrow">›</span>
+      <span class="tstep" id="ts2">② Effect</span>
+      <span class="tstep-arrow">›</span>
+      <span class="tstep" id="ts3">③ Edit</span>
+    </nav>
+    <div class="topbar-file" id="topbarFile" style="display:none">
+      <img id="thumbImg" class="thumb-img" alt="" />
+      <button id="cropBtn" class="btn-change">Crop</button>
+      <button id="changeFileBtn" class="btn-change">Replace</button>
+    </div>
+  </header>
+
+  <input type="file" id="fileInput" accept="image/*" hidden />
+
+  <main class="app">
+    <section id="step1" class="step">
+      <div class="upload-hero" id="uploadHero">
+        <div class="upload-inner" id="uploadInner">
+          <div class="upload-icon">⬆</div>
+          <p class="upload-title" id="uploadTitle">Click to upload an image, or drag it here</p>
+          <span class="hint" id="uploadHint">JPG / PNG supported, up to 20MB</span>
+        </div>
+      </div>
+
+      <div class="preset-bar" id="presetBar" style="display:none">
+        <span><span id="presetBarText">✦ Selected</span> <strong id="presetBarName"></strong> <span id="presetBarHint">· Upload your image to try it</span></span>
+        <button class="btn-preset-clear" id="presetBarClear">✕ Clear</button>
+      </div>
+
+      <div class="playbook">
+        <div class="playbook-header">
+          <span class="playbook-title" id="playbookTitle">Popular Playbooks</span>
+          <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end">
+            <div class="playbook-tabs">
+              <button class="pb-tab active" data-filter="all">All</button>
+              <button class="pb-tab" data-filter="colorwalk">ColorWalk</button>
+              <button class="pb-tab" data-filter="dot">Dot Puzzle</button>
+            </div>
+          </div>
+        </div>
+        <p class="hint" id="playbookHint" style="margin:0 0 12px">Browse official looks and community works, then try the same parameters on your own image.</p>
+        <div class="playbook-grid" id="playbookGrid"></div>
+      </div>
+    </section>
+
+    <section id="step2" class="step" style="display:none">
+      <h2 class="step-heading" id="step2Heading">Choose an effect</h2>
+      <div class="mode-cards">
+        <div class="mode-card" data-mode="dot">
+          <div class="mode-card-left">
+            <div class="mode-icon">✦</div>
+            <div>
+              <h3 class="mode-name">Dot Puzzle</h3>
+              <p class="mode-desc">Turn your image into a playful dot collage with custom dot size, shape, and distribution.</p>
+            </div>
+          </div>
+          <span class="mode-arrow">→</span>
+        </div>
+        <div class="mode-card" data-mode="colorwalk">
+          <div class="mode-card-left">
+            <div class="mode-icon">●</div>
+            <div>
+              <h3 class="mode-name">ColorWalk</h3>
+              <p class="mode-desc">Extract a dominant color, pair it with your photo, and add text in one composition.</p>
+            </div>
+          </div>
+          <span class="mode-arrow">→</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="step3" class="step" style="display:none">
+      <div class="editor">
+        <div class="editor-left">
+          <div class="preview-box" id="main-preview-box">
+            <span class="placeholder" id="previewPlaceholder">Generating preview…</span>
+          </div>
+          <div class="download-row" id="main-dl-row" style="display:none">
+            <button class="btn-dl" id="btn-dl-png">↓ Download PNG</button>
+            <button class="btn-dl btn-dl-ghost" id="btn-dl-jpg">↓ Download JPG</button>
+          </div>
+          <button class="btn-submit-community" id="btnSubmitCommunity" type="button" style="display:none">Submit to Community</button>
+        </div>
+
+        <div class="editor-right">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <button class="btn-back" id="btnBack" style="margin-bottom:0">← Change effect</button>
+            <button class="btn-copy-params" id="btnCopyParams">Copy params</button>
+          </div>
+
+          <div id="settingsDot" style="display:none">
+            <div class="settings-section">
+              <h4 class="settings-title">Block</h4>
+              <div class="setting-row">
+                <label id="dpPositionLabel">Side</label>
+                <select id="dp-position">
+                  <option value="right">Right</option>
+                  <option value="left">Left</option>
+                  <option value="top">Top</option>
+                  <option value="bottom">Bottom</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <label id="dpBlockRatioLabel">Size</label>
+                <div class="slider-row">
+                  <input type="range" id="dp-block-ratio" min="15" max="60" value="40" />
+                  <span id="dp-block-ratio-val">40%</span>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label id="dpBlockTypeLabel">Style</label>
+                <select id="dp-block-type">
+                  <option value="solid">Solid</option>
+                  <option value="gradient">Gradient</option>
+                  <option value="stripe">Stripe</option>
+                  <option value="vintage">Vintage</option>
+                </select>
+              </div>
+              <div id="dp-color-solid" class="setting-row">
+                <label id="dpColor1Label">Color</label>
+                <input type="color" id="dp-color1" value="#c8b4a0" />
+              </div>
+              <div id="dp-color-gradient" style="display:none">
+                <div class="setting-row">
+                  <label id="dpGradDirLabel">Flow</label>
+                  <select id="dp-grad-dir">
+                    <option value="vertical">Top → Bottom</option>
+                    <option value="horizontal">Left → Right</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <label id="dpGrad1Label">Start</label>
+                  <input type="color" id="dp-grad1" value="#f5d0a9" />
+                </div>
+                <div class="setting-row">
+                  <label id="dpGrad2Label">End</label>
+                  <input type="color" id="dp-grad2" value="#9fc8e0" />
+                </div>
+              </div>
+              <div id="dp-color-stripe" style="display:none">
+                <div class="setting-row">
+                  <label id="dpStripe1Label">Color A</label>
+                  <input type="color" id="dp-stripe1" value="#f5c0cc" />
+                </div>
+                <div class="setting-row">
+                  <label id="dpStripe2Label">Color B</label>
+                  <input type="color" id="dp-stripe2" value="#a8c8e8" />
+                </div>
+                <div class="setting-row">
+                  <label id="dpStripeDirLabel">Flow</label>
+                  <select id="dp-stripe-dir">
+                    <option value="vertical">Vertical</option>
+                    <option value="horizontal">Horizontal</option>
+                  </select>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="dp-decouple" />
+                  <span id="dpDecoupleText">Decouple block and photo</span>
+                </label>
+              </div>
+              <div class="setting-row" id="dp-block-distribution-row" style="display:none">
+                <label id="dpBlockDistributionLabel">Block</label>
+                <select id="dp-block-distribution">
+                  <option value="linked">Follow photo</option>
+                  <option value="random">Random</option>
+                  <option value="grid">Grid</option>
+                  <option value="edge">Edge</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
+              <div id="dp-block-manual-wrap" style="display:none">
+                <p class="hint" id="dpBlockManualHint" style="margin:8px 0 6px">Place dots on the block side independently.</p>
+                <p class="hint" id="dpBlockManualEmptyHint" style="margin:0 0 8px">No block dots yet. Click on the block canvas to add points.</p>
+                <button class="btn-clear" id="dp-block-seed-random" style="margin-bottom:6px">Generate block points</button>
+                <div style="position:relative;display:inline-block;width:100%">
+                  <canvas id="dp-block-dot-canvas" style="width:100%;border-radius:8px;cursor:crosshair;display:block"></canvas>
+                </div>
+                <button class="btn-clear" id="dp-block-clear-dots">Clear block points</button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-title">Dots</h4>
+              <div class="setting-row">
+                <label id="dpShapeLabel">Shape</label>
+                <select id="dp-shape">
+                  <option value="circle">Circle</option>
+                  <option value="star">Star</option>
+                  <option value="teardrop">Teardrop</option>
+                  <option value="moon">Moon</option>
+                  <option value="cat_paw" style="display:none">Cat Paw</option>
+                  <option value="heart">Heart</option>
+                  <option value="text">Text</option>
+                </select>
+              </div>
+              <div id="dp-custom-text-wrap" style="display:none" class="setting-row">
+                <label id="dpCustomTextLabel">Text</label>
+                <input type="text" id="dp-custom-text" maxlength="4" placeholder="Up to 4 chars" />
+              </div>
+              <div class="setting-row">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="dp-size-random" />
+                  <span id="dpSizeRandomText">Random sizes</span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <label id="dpDotSizeLabel">Size</label>
+                <div class="slider-row">
+                  <input type="range" id="dp-dot-size" min="20" max="150" value="60" />
+                  <span id="dp-dot-size-val">60px</span>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label id="dpDotCountLabel">Count</label>
+                <div class="slider-row">
+                  <input type="range" id="dp-dot-count" min="3" max="30" value="12" />
+                  <span id="dp-dot-count-val">12</span>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label id="dpDistributionLabel">Photo</label>
+                <select id="dp-distribution">
+                  <option value="random">Random</option>
+                  <option value="grid">Grid</option>
+                  <option value="edge">Edge</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
+              <div id="dp-manual-wrap" style="display:none">
+                <p class="hint" id="dpManualHint" style="margin:8px 0 6px">Click the photo to add or remove a dot.</p>
+                <button class="btn-clear" id="dp-seed-random" style="margin-bottom:6px">Generate starter points</button>
+                <div style="position:relative;display:inline-block;width:100%">
+                  <canvas id="dp-dot-canvas" style="width:100%;border-radius:8px;cursor:crosshair;display:block"></canvas>
+                </div>
+                <button class="btn-clear" id="dp-clear-dots">Clear photo points</button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-title">Text Overlay</h4>
+              <div class="setting-row">
+                <label id="dpTextLabel">Text</label>
+                <input type="text" id="dp-text" placeholder="Leave empty to hide" />
+              </div>
+              <div class="setting-row">
+                <label id="dpTextSizeLabel">Size</label>
+                <input type="number" id="dp-text-size" value="32" min="12" max="120" class="input-sm" />
+              </div>
+              <div class="setting-row">
+                <label id="dpTextColorLabel">Color</label>
+                <div class="color-row">
+                  <input type="color" id="dp-text-color" value="#ffffff" />
+                  <input type="text" id="dp-text-color-hex" value="#FFFFFF" maxlength="7" class="hex-input" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="settingsCw" style="display:none">
+            <div class="settings-section">
+              <h4 class="settings-title">Block</h4>
+              <div class="setting-row">
+                <label id="cwRatioLabel">Size</label>
+                <div class="slider-row">
+                  <input type="range" id="cw-ratio" min="20" max="60" value="45" />
+                  <span id="cw-ratio-val">45%</span>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="cw-auto-color" checked />
+                  <span id="cwAutoColorText">Auto color</span>
+                </label>
+              </div>
+              <div id="cw-manual-color" style="display:none" class="setting-row">
+                <label id="cwColorLabel">Color</label>
+                <div class="color-row">
+                  <input type="color" id="cw-color" value="#e8d8c0" />
+                  <input type="text" id="cw-color-hex" value="#E8D8C0" maxlength="7" class="hex-input" />
+                </div>
+              </div>
+              <div class="hint" id="cw-extracted-hint" style="margin-top:4px"></div>
+            </div>
+
+            <div class="settings-section">
+              <h4 class="settings-title">Text</h4>
+              <div class="setting-row">
+                <label id="cwTextLabel">Text</label>
+                <input type="text" id="cw-text" placeholder="e.g. Summer 2025" />
+              </div>
+              <div class="setting-row">
+                <label id="cwFontSizeLabel">Size</label>
+                <input type="number" id="cw-font-size" value="45" min="12" max="300" class="input-sm" />
+              </div>
+              <div class="setting-row">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="cw-auto-text-color" />
+                  <span id="cwAutoTextColorText">Auto text color</span>
+                </label>
+              </div>
+              <div id="cw-manual-text-color" class="setting-row">
+                <label id="cwTextColorLabel">Color</label>
+                <div class="color-row">
+                  <input type="color" id="cw-text-color" value="#ffffff" />
+                  <input type="text" id="cw-text-color-hex" value="#FFFFFF" maxlength="7" class="hex-input" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="loading" id="loading" style="display:none">
+    <div class="spinner"></div>
+    <p id="loadingText">Generating…</p>
+  </div>
+
+  <div id="cropModal" class="crop-modal" style="display:none">
+    <div class="crop-inner">
+      <div class="crop-toolbar">
+        <span class="crop-label" id="cropLabel">Crop image</span>
+        <div class="crop-ratios">
+          <button class="crop-ratio-btn active" data-ratio="free" id="cropFreeBtn">Free</button>
+          <button class="crop-ratio-btn" data-ratio="1">1:1</button>
+          <button class="crop-ratio-btn" data-ratio="1.3333">4:3</button>
+          <button class="crop-ratio-btn" data-ratio="1.7778">16:9</button>
+          <button class="crop-ratio-btn" data-ratio="0.5625">9:16</button>
+        </div>
+        <div class="crop-actions">
+          <button id="cropReset" class="btn-change">Reset</button>
+          <button id="cropCancel" class="btn-change">Cancel</button>
+          <button id="cropConfirm" class="btn-crop-confirm">Confirm crop</button>
+        </div>
+      </div>
+      <div class="crop-canvas-wrap">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="pbLightbox" class="pb-lightbox" style="display:none">
+    <div class="pb-lb-backdrop" id="pbLbBackdrop"></div>
+    <div class="pb-lb-inner">
+      <button class="pb-lb-close" id="pbLbClose">✕</button>
+      <div class="pb-lb-img-wrap">
+        <img id="pbLbImg" alt="" />
+      </div>
+      <div class="pb-lb-info">
+        <span class="pb-lb-badge" id="pbLbBadge"></span>
+        <p class="pb-lb-meta" id="pbLbMeta" style="display:none"></p>
+        <p class="pb-lb-hint" id="pbLbHint">Use your own photo,<br>then try the same look in one click.</p>
+        <button class="pb-lb-try" id="pbLbTry">Try this look →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="communitySubmitModal" class="submit-modal" style="display:none">
+    <div class="submit-backdrop" id="communitySubmitBackdrop"></div>
+    <div class="submit-panel">
+      <button class="submit-close" id="communitySubmitClose" type="button">✕</button>
+      <h3 id="communitySubmitTitle">Submit to Community</h3>
+      <p class="submit-copy" id="communitySubmitCopy">Share your current finished work. It will stay hidden until you approve it in admin.</p>
+      <div class="submit-form">
+        <label class="submit-label" for="communityDisplayName" id="communityDisplayNameLabel">Display name</label>
+        <input class="submit-input" id="communityDisplayName" maxlength="20" placeholder="Your name or nickname" />
+        <label class="submit-label" for="communityDescription" id="communityDescriptionLabel">Description</label>
+        <textarea class="submit-textarea" id="communityDescription" maxlength="120" placeholder="Add one short line about this work"></textarea>
+        <input id="communityWebsite" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0" />
+        <div class="submit-actions">
+          <button class="btn-dl btn-dl-ghost" id="communitySubmitCancel" type="button">Cancel</button>
+          <button class="btn-dl" id="communitySubmitConfirm" type="button">Submit</button>
+        </div>
+        <p class="submit-status" id="communitySubmitStatus"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
