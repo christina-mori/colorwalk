@@ -5,7 +5,7 @@ Turn any photo into a playful visual composition.
 ColorWalk Studio is a lightweight browser app for transforming everyday photos into poster-like images with color blocks, extracted palettes, dots, shapes, gradients, stripes, and text. It is designed for quick creative experiments, social visuals, moodboard material, and small image-led product demos.
 
 <p align="center">
-  <img src="./landing.png" alt="ColorWalk Studio landing page" width="820">
+  <img src="./static/gallery/cw1.jpg" alt="ColorWalk Studio color block example" width="820">
 </p>
 
 ## What It Does
@@ -33,19 +33,19 @@ ColorWalk Studio currently includes two creative tools:
 ### ColorWalk Mode
 
 <p align="center">
-  <img src="./step3-editor.png" alt="ColorWalk editor preview" width="760">
+  <img src="./static/gallery/cw4.jpg" alt="ColorWalk color block composition" width="760">
 </p>
 
 ### Dot Puzzle Mode
 
 <p align="center">
-  <img src="./step3_dot.png" alt="Dot Puzzle editor preview" width="760">
+  <img src="./static/gallery/dp2.jpg" alt="Dot Puzzle text and shape composition" width="760">
 </p>
 
 ### Inspiration Gallery
 
 <p align="center">
-  <img src="./playbook-test.png" alt="ColorWalk inspiration gallery" width="760">
+  <img src="./static/gallery/dp4.jpg" alt="Dot Puzzle stripe and heart composition" width="760">
 </p>
 
 ## How To Use
