@@ -1,13 +1,60 @@
 # ColorWalk Studio
 
-ColorWalk Studio is a small Flask app for generating playful image compositions from a photo.
+Turn any photo into a playful visual composition.
 
-It currently supports two tools:
+ColorWalk Studio is a lightweight browser app for transforming everyday photos into poster-like images with color blocks, extracted palettes, dots, shapes, gradients, stripes, and text. It is designed for quick creative experiments, social visuals, moodboard material, and small image-led product demos.
 
-- **ColorWalk**: combine a photo with a color block and text.
-- **Dot Puzzle**: combine a photo with cutout dots, shapes, blocks, gradients, stripes, and text.
+<p align="center">
+  <img src="./landing.png" alt="ColorWalk Studio landing page" width="820">
+</p>
 
-The app is intentionally lightweight: one Flask server, no build step, SQLite-backed community submissions, and static frontend assets.
+## What It Does
+
+Upload a photo, choose a visual mode, adjust the composition, and export the result as an image.
+
+ColorWalk Studio currently includes two creative tools:
+
+- **ColorWalk**: combine a photo with a color block and text. The app can extract a color from the uploaded image and reuse it in the layout.
+- **Dot Puzzle**: combine a photo with cutout dots, shapes, blocks, gradients, stripes, and text for a more playful collage effect.
+
+## Features
+
+- Upload and crop a photo in the browser
+- Generate a color-block composition from an image
+- Add custom text, colors, dots, shapes, gradients, and stripes
+- Preview changes while editing
+- Export finished visuals as PNG or JPG
+- Browse ready-made looks and apply similar parameters to your own image
+- Submit selected works to the community gallery
+- Switch between English and Chinese UI
+
+## Product Preview
+
+### ColorWalk Mode
+
+<p align="center">
+  <img src="./step3-editor.png" alt="ColorWalk editor preview" width="760">
+</p>
+
+### Dot Puzzle Mode
+
+<p align="center">
+  <img src="./step3_dot.png" alt="Dot Puzzle editor preview" width="760">
+</p>
+
+### Inspiration Gallery
+
+<p align="center">
+  <img src="./playbook-test.png" alt="ColorWalk inspiration gallery" width="760">
+</p>
+
+## How To Use
+
+1. Open the app.
+2. Upload a photo.
+3. Choose a creative mode.
+4. Adjust the layout, color, text, dots, or shapes.
+5. Download the final image as PNG or JPG.
 
 ## Local Setup
 
@@ -19,6 +66,13 @@ python app.py
 ```
 
 Then open `http://127.0.0.1:5000`.
+
+If the virtual environment already exists, you can usually start from:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python app.py
+```
 
 ## Environment Variables
 
@@ -32,6 +86,8 @@ SUBMISSION_SALT=replace-with-another-random-secret
 MAX_COMMUNITY_SUBMISSION_MB=20
 APP_BASE_URL=https://your-app.up.railway.app
 ```
+
+For local development, the app also provides safe default values in `app.py`.
 
 ## Railway Deploy
 
